@@ -9,6 +9,28 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => console.log("MongoDB connected successfully"))
+  .catch((err) => console.error("MongoDB connection error:", err));
+
+  const authRoutes = require("./routes/authRoutes");
+app.use("/api/auth", authRoutes);
+
+// const { protect } = require("./middleware/authMiddleware");
+
+// app.get("/api/protected", protect, (req, res) => {
+//   res.json({
+//     message: "Protected route accessed",
+//     user: req.user,
+//   });
+// });
+
+const protectedRoutes = require("./routes/protectedRoutes");
+
+app.use("/api", protectedRoutes);
+
 // Test route
 app.get("/", (req, res) => {
   res.send("EduVillage Backend Running");
