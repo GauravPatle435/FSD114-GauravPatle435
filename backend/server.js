@@ -27,9 +27,15 @@ app.use("/api/auth", authRoutes);
 //   });
 // });
 
+// protected routes
 const protectedRoutes = require("./routes/protectedRoutes");
 
 app.use("/api", protectedRoutes);
+
+// course routes
+const courseRoutes = require("./routes/courseRoutes");
+
+app.use("/api/courses", courseRoutes);
 
 // Test route
 app.get("/", (req, res) => {
