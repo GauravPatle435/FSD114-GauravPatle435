@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const { createCourse, getCourses, enrollCourse, getMyCourses, getTeacherCourses } = require("../controllers/courseController");
+const { createCourse, getCourses, enrollCourse, updateCourse, getMyCourses, getTeacherCourses } = require("../controllers/courseController");
 const protect = require("../middleware/authMiddleware");
 const authorizeRoles = require("../middleware/roleMiddleware");
 
@@ -16,11 +16,28 @@ router.post(
 // Student/Admin/Teacher → View courses
 router.get("/", protect, getCourses);
 
+// student-> enroll in course
 router.post(
   "/:id/enroll",
   protect,
   authorizeRoles("student"),
   enrollCourse
+);
+
+// student-> unenroll in course
+// router.post(
+//   "/:id/unenroll",
+//   protect,
+//   authorizeRoles("student"),
+//   unenrollCourse
+// );
+
+// teacher + admin-- update course
+router.put(
+  "/:id",
+  protect,
+  authorizeRoles("admin", "teacher"),
+  updateCourse
 );
 
 // Student → My Courses

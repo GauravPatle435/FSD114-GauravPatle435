@@ -10,6 +10,12 @@ const userSchema = new mongoose.Schema(
       enum: ["student", "teacher", "admin"],
       default: "student",
     },
+    enrolledCourses: [
+   {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Course",
+   },
+  ],
   },
   { timestamps: true }
 );

@@ -1,12 +1,57 @@
+// import {jwtDecode} from "jwt-decode";
+// import StudentDashboard from "./StudentDashboard";
+// import TeacherDashboard from "./TeacherDashboard";
+// import AdminDashboard from "./AdminDashboard";
+// import Navbar from "../components/Navbar";
+
+// function Dashboard() {
+//   const token = localStorage.getItem("token");
+//   const user = jwtDecode(token);
+
+//   const logout = () => {
+//     localStorage.removeItem("token");
+//     window.location.href = "/login";
+//   };
+
+//   return (
+//     <div>
+//       <h2>EduVillage Dashboard</h2>
+
+//       <p><b>Name:</b> {user.name}</p>
+//       <p><b>Email:</b> {user.email}</p>
+//       <p><b>Role:</b> {user.role}</p>
+
+//       <hr />
+
+//       {user.role === "student" && <StudentDashboard user={user} />}
+//       {user.role === "teacher" && <TeacherDashboard user={user} />}
+//       {user.role === "admin" && <AdminDashboard user={user} />}
+
+//       <br />
+//       <button onClick={logout}>Logout</button>
+//     </div>
+//   );
+// }
+
+// export default Dashboard;
+
+
+
 import {jwtDecode} from "jwt-decode";
+import Navbar from "../components/Navbar";
+import StudentDashboard from "./StudentDashboard";
+ import TeacherDashboard from "./TeacherDashboard";
+ import AdminDashboard from "./AdminDashboard";
 
 function Dashboard() {
   const token = localStorage.getItem("token");
 
-  let user = null;
-  if (token) {
-    user = jwtDecode(token);
+  if (!token) {
+    window.location.href = "/login";
+    return null;
   }
+
+  const user = jwtDecode(token);
 
   const logout = () => {
     localStorage.removeItem("token");
@@ -14,20 +59,28 @@ function Dashboard() {
   };
 
   return (
-    <div>
-      <h2>EduVillage Dashboard</h2>
+    <>
+      <Navbar />
 
-      {user && (
-        <>
-          <p><strong>Name:</strong> {user.name}</p>
-          <p><strong>Email:</strong> {user.email}</p>
-          <p><strong>Role:</strong> {user.role}</p>
-        </>
-      )}
+      <div>
+       <h2>EduVillage Dashboard</h2>
 
-      <button onClick={logout}>Logout</button>
-    </div>
+       <p><b>Name:</b> {user.name}</p>
+       <p><b>Email:</b> {user.email}</p>
+       <p><b>Role:</b> {user.role}</p>
+
+       <hr />
+
+       {user.role === "student" && <StudentDashboard user={user} />}
+       {user.role === "teacher" && <TeacherDashboard user={user} />}
+       {user.role === "admin" && <AdminDashboard user={user} />}
+
+         <br /> 
+        <button onClick={logout}>Logout</button>
+      </div>
+    </>
   );
 }
 
 export default Dashboard;
+
