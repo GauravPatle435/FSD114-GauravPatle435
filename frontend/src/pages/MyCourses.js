@@ -11,16 +11,16 @@ function MyCourses() {
       },
     })
       .then((res) => res.json())
-      .then((data) => setCourses(data));
+      .then((data) => setCourses(data.courses));
   }, [token]);
 
   return (
     <div>
       <h2>🎓 My Courses</h2>
 
-      {courses.length === 0 && <p>No courses enrolled yet</p>}
+      {Array.isArray(courses) && courses.length === 0 && <p>No courses enrolled yet</p>}
 
-      {courses.map((course) => (
+      {Array.isArray(courses) && courses.map((course) => (
         <div key={course._id} style={{ border: "1px solid #ccc", margin: "10px", padding: "10px" }}>
           <h3>{course.title}</h3>
           <p>{course.description}</p>

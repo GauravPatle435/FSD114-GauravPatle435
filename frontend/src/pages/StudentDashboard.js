@@ -4,10 +4,9 @@ function StudentDashboard({ user }) {
       <h3>🎓 Student Dashboard</h3>
       <p>Welcome, {user.name}</p>
 
-      <a href="/my-courses">My Courses</a>
-
       <ul>
-        <li>📘 My Courses</li>
+        <li><a href="/courses"><button>📚 All Courses</button></a></li>
+        <li><a href="/my-courses"><button>📘 My Courses</button></a></li>
         <li>📝 My Quizzes</li>
         <li>📊 My Progress</li>
         <li>🎓 Certificates</li>

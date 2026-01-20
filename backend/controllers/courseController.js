@@ -4,14 +4,15 @@ const User = require("../models/User");
 // Create course (Teacher/Admin)
 exports.createCourse = async (req, res) => {
   try {
-    const { title, description } = req.body;
+    const { title, description, lessons } = req.body;
 
     const course = await Course.create({
       title,
       description,
+      lessons,
       createdBy: req.user.id,
     });
-
+    
     res.status(201).json({
       message: "Course created successfully",
       course,
@@ -20,6 +21,61 @@ exports.createCourse = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+  // get course by id
+  exports.getCourseById = async (req, res) => {
+  try {
+    const course = await Course.findById(req.params.id);
+
+    if (!course) {
+      return res.status(404).json({ message: "Course not found" });
+    }
+
+    res.json(course);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+// exports.getCourseById = async (req, res) => {
+//   try {
+//     const course = await Course.findById(req.params.id);
+
+//     if (!course) {
+//       return res.status(404).json({ message: "Course not found" });
+//     }
+
+//     const user = req.user;
+
+//     // Admin always allowed
+//     if (user.role === "admin") {
+//       return res.json(course);
+//     }
+
+//     // Teacher who created course allowed
+//     if (
+//       user.role === "teacher" &&
+//       course.createdBy.toString() === user.id
+//     ) {
+//       return res.json(course);
+//     }
+
+//     // Student must be enrolled
+//     if (user.role === "student") {
+//       const enrolled = user.enrolledCourses.includes(course._id);
+
+//       if (!enrolled) {
+//         return res
+//           .status(403)
+//           .json({ message: "You are not enrolled in this course" });
+//       }
+
+//       return res.json(course);
+//     }
+
+//     res.status(403).json({ message: "Access denied" });
+//   } catch (error) {
+//     res.status(500).json({ message: error.message });
+//   }
+// };
 
 // Get all courses (Student)
 exports.getCourses = async (req, res) => {
@@ -114,15 +170,26 @@ exports.updateCourse = async (req, res) => {
 // Get courses enrolled by logged-in student
 exports.getMyCourses = async (req, res) => {
   try {
-    const courses = await Course.find({
-      students: req.user.id,
-    }).populate("createdBy", "name email");
+    const user = await User.findById(req.user.id)
+      .populate("enrolledCourses");
 
-    res.json(courses);
+    res.json(user.enrolledCourses);
+
   } catch (error) {
-    res.status(500).json({ message: "Failed to fetch enrolled courses" });
+    res.status(500).json({ message: error.message });
   }
 };
+// exports.getMyCourses = async (req, res) => {
+//   try {
+//     const courses = await Course.find({
+//       students: req.user.id,
+//     }).populate("createdBy", "name email");
+
+//     res.json(courses);
+//   } catch (error) {
+//     res.status(500).json({ message: "Failed to fetch enrolled courses" });
+//   }
+// };
 
 // Get courses created by logged-in teacher
 exports.getTeacherCourses = async (req, res) => {

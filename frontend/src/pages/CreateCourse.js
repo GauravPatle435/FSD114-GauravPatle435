@@ -8,6 +8,8 @@ function CreateCourse() {
   const [form, setForm] = useState({
     title: "",
     description: "",
+    videoUrl : "",
+    pdfUrl : "",
   });
 
   // 🚫 Students not allowed
@@ -22,20 +24,32 @@ function CreateCourse() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const courseData ={
+      title :form.title,
+      description : form.description,
+      lessons:[
+        {
+          title: "Introduction",
+          videoUrl : form.videoUrl,
+          pdfUrl : form.pdfUrl,
+        }
+      ]
+    }
+
     const res = await fetch("/api/courses", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(form),
+      body: JSON.stringify(courseData),
     });
 
     const data = await res.json();
 
     if (res.ok) {
       alert("✅ Course created successfully");
-      setForm({ title: "", description: "" });
+      setForm({ title: "", description: "", videoUrl:"", pdfUrl:"" });
     } else {
       alert(data.message || "❌ Failed to create course");
     }
@@ -59,6 +73,24 @@ function CreateCourse() {
           name="description"
           placeholder="Course Description"
           value={form.description}
+          onChange={handleChange}
+          required
+        />
+        <br />
+
+        <input
+          name="videoUrl"
+          placeholder=" Lesson Video Url"
+          value={form.videoUrl}
+          onChange={handleChange}
+          required
+        />
+        <br />
+
+        <input
+          name="pdfUrl"
+          placeholder=" Lesson Notes Url"
+          value={form.pdfUrl}
           onChange={handleChange}
           required
         />

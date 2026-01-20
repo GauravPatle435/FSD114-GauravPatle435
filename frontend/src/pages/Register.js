@@ -23,7 +23,7 @@ function Register() {
 
     const data = await res.json();
     alert(data.message || "Registered successfully");
-    // window.location.href = "/dashboard";
+    //window.location.href = "/dashboard";
   };
 
   return (

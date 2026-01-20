@@ -18,6 +18,8 @@ import EditCourse from "./pages/EditCourse";
 
 import AdminUsers from "./pages/AdminUsers";
 
+import CourseDetails from "./pages/CourseDetails";
+
 
 
 function App() {
@@ -91,6 +93,15 @@ function App() {
     <AdminRoute>
       <AdminUsers />
     </AdminRoute>
+  }
+/>
+
+   <Route
+  path="/courses/:id"
+  element={
+    <ProtectedRoute>
+      <CourseDetails />
+    </ProtectedRoute>
   }
 />
 
