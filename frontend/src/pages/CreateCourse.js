@@ -1,103 +1,252 @@
+// import { useState } from "react";
+// import {jwtDecode} from "jwt-decode";
+
+// function CreateCourse() {
+//   const token = localStorage.getItem("token");
+//   const user = jwtDecode(token);
+
+//   const [form, setForm] = useState({
+//     title: "",
+//     description: "",
+//     videoUrl : "",
+//     pdfUrl : "",
+//   });
+
+//   // 🚫 Students not allowed
+//   if (user.role === "student") {
+//     return <h3>❌ You are not allowed to create courses</h3>;
+//   }
+
+//   const handleChange = (e) => {
+//     setForm({ ...form, [e.target.name]: e.target.value });
+//   };
+
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+
+//     const courseData ={
+//       title :form.title,
+//       description : form.description,
+//       lessons:[
+//         {
+//           title: "Introduction",
+//           videoUrl : form.videoUrl,
+//           pdfUrl : form.pdfUrl,
+//         }
+//       ]
+//     }
+
+//     const res = await fetch("/api/courses", {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json",
+//         Authorization: `Bearer ${token}`,
+//       },
+//       body: JSON.stringify(courseData),
+//     });
+
+//     const data = await res.json();
+
+//     if (res.ok) {
+//       alert("✅ Course created successfully");
+//       setForm({ title: "", description: "", videoUrl:"", pdfUrl:"" });
+//     } else {
+//       alert(data.message || "❌ Failed to create course");
+//     }
+//   };
+
+//   return (
+//     <div>
+//       <h2>➕ Create Course</h2>
+
+//       <form onSubmit={handleSubmit}>
+//         <input
+//           name="title"
+//           placeholder="Course Title"
+//           value={form.title}
+//           onChange={handleChange}
+//           required
+//         />
+//         <br />
+
+//         <textarea
+//           name="description"
+//           placeholder="Course Description"
+//           value={form.description}
+//           onChange={handleChange}
+//           required
+//         />
+//         <br />
+
+//         <input
+//           name="videoUrl"
+//           placeholder=" Lesson Video Url"
+//           value={form.videoUrl}
+//           onChange={handleChange}
+//           required
+//         />
+//         <br />
+
+//         <input
+//           name="pdfUrl"
+//           placeholder=" Lesson Notes Url"
+//           value={form.pdfUrl}
+//           onChange={handleChange}
+//           required
+//         />
+//         <br />
+
+//         <button type="submit">Create Course</button>
+//       </form>
+//     </div>
+//   );
+// }
+
+// export default CreateCourse;
+
+
 import { useState } from "react";
-import {jwtDecode} from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 
 function CreateCourse() {
+
   const token = localStorage.getItem("token");
   const user = jwtDecode(token);
 
-  const [form, setForm] = useState({
-    title: "",
-    description: "",
-    videoUrl : "",
-    pdfUrl : "",
-  });
+  // Course fields
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
 
-  // 🚫 Students not allowed
+  // Lesson fields
+  const [lessonTitle, setLessonTitle] = useState("");
+  const [video, setVideo] = useState(null);
+  const [pdf, setPdf] = useState(null);
+
+  // 🚫 Students blocked
   if (user.role === "student") {
-    return <h3>❌ You are not allowed to create courses</h3>;
+    return <h3>❌ Students cannot create courses</h3>;
   }
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  // Upload function
+  const uploadFile = async (file) => {
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await fetch("http://localhost:5000/api/courses/upload", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    const data = await res.json();
+    return data.url;
   };
 
+  // Create Course
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const courseData ={
-      title :form.title,
-      description : form.description,
-      lessons:[
-        {
-          title: "Introduction",
-          videoUrl : form.videoUrl,
-          pdfUrl : form.pdfUrl,
-        }
-      ]
+    if (!video || !pdf) {
+      alert("Please upload video and pdf");
+      return;
     }
 
-    const res = await fetch("/api/courses", {
+    // Upload files
+    const videoUrl = await uploadFile(video);
+    const pdfUrl = await uploadFile(pdf);
+
+    const lesson = {
+      title: lessonTitle,
+      videoUrl,
+      pdfUrl,
+    };
+
+    const res = await fetch("http://localhost:5000/api/courses", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(courseData),
+      body: JSON.stringify({
+        title,
+        description,
+        lessons: [lesson],
+      }),
     });
 
-    const data = await res.json();
-
     if (res.ok) {
-      alert("✅ Course created successfully");
-      setForm({ title: "", description: "", videoUrl:"", pdfUrl:"" });
+      alert("✅ Course Created Successfully");
+      setTitle("");
+      setDescription("");
+      setLessonTitle("");
     } else {
-      alert(data.message || "❌ Failed to create course");
+      alert("❌ Course creation failed");
     }
   };
 
   return (
     <div>
-      <h2>➕ Create Course</h2>
+
+      <h2>Create Course</h2>
 
       <form onSubmit={handleSubmit}>
+
         <input
-          name="title"
           placeholder="Course Title"
-          value={form.title}
-          onChange={handleChange}
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
           required
         />
-        <br />
+
+        <br /><br />
 
         <textarea
-          name="description"
           placeholder="Course Description"
-          value={form.description}
-          onChange={handleChange}
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
           required
         />
-        <br />
+
+        <br /><br />
 
         <input
-          name="videoUrl"
-          placeholder=" Lesson Video Url"
-          value={form.videoUrl}
-          onChange={handleChange}
+          placeholder="Lesson Title"
+          value={lessonTitle}
+          onChange={(e) => setLessonTitle(e.target.value)}
           required
         />
-        <br />
 
+        <br /><br />
+
+        <label>Upload Video</label>
         <input
-          name="pdfUrl"
-          placeholder=" Lesson Notes Url"
-          value={form.pdfUrl}
-          onChange={handleChange}
+          type="file"
+          accept="video/*"
+          onChange={(e) => setVideo(e.target.files[0])}
           required
         />
-        <br />
 
-        <button type="submit">Create Course</button>
+        <br /><br />
+
+        <label>Upload PDF</label>
+        <input
+          type="file"
+          accept="application/pdf"
+          onChange={(e) => setPdf(e.target.files[0])}
+          required
+        />
+
+        <br /><br />
+
+        <button type="submit">
+          Create Course
+        </button>
+
       </form>
+
     </div>
   );
 }

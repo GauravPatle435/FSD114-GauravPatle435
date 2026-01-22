@@ -90,54 +90,137 @@ exports.getCourses = async (req, res) => {
 // Enroll in course (Student only)
 exports.enrollCourse = async (req, res) => {
   try {
+    const user = req.user;
     const course = await Course.findById(req.params.id);
 
     if (!course) {
       return res.status(404).json({ message: "Course not found" });
     }
 
-    // Prevent duplicate enrollment
-    if (course.students.includes(req.user.id)) {
+    const alreadyEnrolled = user.enrolledCourses?.some(
+      id => id && id.toString() === course._id.toString()
+    );
+
+    if (alreadyEnrolled) {
       return res.status(400).json({ message: "Already enrolled" });
     }
 
-    course.students.push(req.user.id);
+    user.enrolledCourses = user.enrolledCourses.filter(Boolean); // 👈 cleanup
+    user.enrolledCourses.push(course._id);
+
+    course.students = course.students.filter(Boolean);
+    course.students.push(user._id);
+
+    await user.save();
     await course.save();
 
     res.json({ message: "Enrolled successfully" });
+
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: "Enrollment failed" });
   }
 };
 
-// Unenroll from course (Student only)
-// exports.unenrollCourse = async (req, res) => {
+
+
+// exports.enrollCourse = async (req, res) => {
 //   try {
-//     const user = await User.findById(req.user.id);
+//     console.log("cource controler started")
+//     const user =  req.user;
+//     const course =  await Course.findById(req.params.id);
+    
+//     console.log(user ,"hhhhhhhs");
+//      console.log("USER ID =", req.user._id);
+//     console.log("COURSE ID =", req.params.id);
+    
 
-//     if (!user) {
-//       return res.status(404).json({ message: "User not found" });
+//     if (!course) {
+//       return res.status(404).json({ message: "Course not found" });
 //     }
 
-//     const isEnrolled = user.enrolledCourses.some(
-//       (courseId) => courseId.toString() === req.params.id
-//     );
-
-//     if (!isEnrolled) {
-//       return res.status(400).json({ message: "Not enrolled in this course" });
+//     // Prevent duplicate enrollment
+//     if (user.enrolledCourses.includes(course._id)) {
+//       return res.status(400).json({ message: "Already enrolled" });
 //     }
-
-//     user.enrolledCourses = user.enrolledCourses.filter(
-//       (courseId) => courseId.toString() !== req.params.id
-//     );
-
+//     console.log("includes");
+    
+//     // Add course to user
+//     user.enrolledCourses.push(course._id);
+  
+    
 //     await user.save();
+//     // Add student to course
+//     course.enrolledStudents.push(user._id);
 
-//     res.json({ message: "Unenrolled successfully" });
+    
+//     await course.save();
+
+// //     await Course.findByIdAndUpdate(courseId, {
+// //   $addToSet: { enrolledStudents: userId }
+// // });
+
+// // await User.findByIdAndUpdate(userId, {
+// //   $addToSet: { enrolledCourses: courseId }
+// // });
+
+//     res.json({ message: "Enrolled successfully" });
+
 //   } catch (error) {
-//     res.status(500).json({ message: error.message });
+//     console.error(error);
+//     res.status(500).json({ message: "Enrollment failed" });
 //   }
 // };
+// // exports.enrollCourse = async (req, res) => {
+// //   try {
+// //     const course = await Course.findById(req.params.id);
+
+// //     if (!course) {
+// //       return res.status(404).json({ message: "Course not found" });
+// //     }
+
+// //     // Prevent duplicate enrollment
+// //     if (course.students.includes(req.user.id)) {
+// //       return res.status(400).json({ message: "Already enrolled" });
+// //     }
+
+// //     course.students.push(req.user.id);
+// //     await course.save();
+
+// //     res.json({ message: "Enrolled successfully" });
+// //   } catch (error) {
+// //     res.status(500).json({ message: "Enrollment failed" });
+// //   }
+// // };
+
+// // Unenroll from course (Student only)
+// // exports.unenrollCourse = async (req, res) => {
+// //   try {
+// //     const user = await User.findById(req.user.id);
+
+// //     if (!user) {
+// //       return res.status(404).json({ message: "User not found" });
+// //     }
+
+// //     const isEnrolled = user.enrolledCourses.some(
+// //       (courseId) => courseId.toString() === req.params.id
+// //     );
+
+// //     if (!isEnrolled) {
+// //       return res.status(400).json({ message: "Not enrolled in this course" });
+// //     }
+
+// //     user.enrolledCourses = user.enrolledCourses.filter(
+// //       (courseId) => courseId.toString() !== req.params.id
+// //     );
+
+// //     await user.save();
+
+// //     res.json({ message: "Unenrolled successfully" });
+// //   } catch (error) {
+// //     res.status(500).json({ message: error.message });
+// //   }
+// // };
 
 // update course//////////////////////////////////
 exports.updateCourse = async (req, res) => {
@@ -170,15 +253,41 @@ exports.updateCourse = async (req, res) => {
 // Get courses enrolled by logged-in student
 exports.getMyCourses = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id)
-      .populate("enrolledCourses");
+    const userId = req.user._id;
+
+    // const courses = await Course.find({
+    //   students: userId
+    // });
+   const user = await User.findById(userId)
+  .select("-password -__v") // 👈 User ke fields exclude
+  .populate({
+    path: "enrolledCourses",
+    select: "-students -__v" // 👈 Course ke fields exclude
+  });
+
+    console.log(user);
+    
+
 
     res.json(user.enrolledCourses);
+    
+    
 
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+// exports.getMyCourses = async (req, res) => {
+//   try {
+//     const user = await User.findById(req.user.id)
+//       .populate("enrolledCourses");
+
+//     res.json(user.enrolledCourses);
+
+//   } catch (error) {
+//     res.status(500).json({ message: error.message });
+//   }
+// };
 // exports.getMyCourses = async (req, res) => {
 //   try {
 //     const courses = await Course.find({
@@ -196,7 +305,8 @@ exports.getTeacherCourses = async (req, res) => {
   try {
     const courses = await Course.find({
       createdBy: req.user.id,
-    }).populate("students", "name email");
+    }).populate("students");
+    
 
     res.json(courses);
   } catch (error) {

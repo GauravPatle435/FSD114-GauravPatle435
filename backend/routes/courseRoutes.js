@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const upload = require("../middleware/uploadMiddleware");
 
 const { createCourse, getCourseById, getCourses, enrollCourse, updateCourse, getMyCourses, getTeacherCourses } = require("../controllers/courseController");
 const protect = require("../middleware/authMiddleware");
@@ -13,7 +14,7 @@ router.post(
   createCourse
 );
 
-router.get("/:id", protect, getCourseById);
+
 
 // Student/Admin/Teacher → View courses
 router.get("/", protect, getCourses);
@@ -57,7 +58,23 @@ router.get(
   authorizeRoles("teacher", "admin"),
   getTeacherCourses
 );
+// upload course
+router.post(
+  "/upload",
+  protect,
+  authorizeRoles("admin", "teacher"),
+  upload.single("file"),
+  (req, res) => {
+     if (!req.file) {
+    return res.status(400).json({ message: "No file uploaded" });
+  }
 
+    res.json({
+      url: req.file.path,
+    });
+  }
+);
+router.get("/:id", protect, getCourseById);
 module.exports = router;
 
 
