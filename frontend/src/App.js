@@ -19,6 +19,7 @@ import EditCourse from "./pages/EditCourse";
 import AdminUsers from "./pages/AdminUsers";
 
 import CourseDetails from "./pages/CourseDetails";
+import AddLesson from "./pages/AddLesson";
 
 
 
@@ -104,6 +105,9 @@ function App() {
     </ProtectedRoute>
   }
 />
+
+<Route path="/add-lesson/:id" element={<AddLesson />} />
+<Route path="/teacher/courses/add-lesson/:id" element={<AddLesson />} />
 
       </Routes>
     </BrowserRouter>

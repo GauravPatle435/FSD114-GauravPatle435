@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const upload = require("../middleware/uploadMiddleware");
 
-const { createCourse, getCourseById, getCourses, enrollCourse, updateCourse, getMyCourses, getTeacherCourses } = require("../controllers/courseController");
+const { createCourse, getCourseById, getCourses, enrollCourse, updateCourse, getMyCourses, getTeacherCourses, addLesson } = require("../controllers/courseController");
 const protect = require("../middleware/authMiddleware");
 const authorizeRoles = require("../middleware/roleMiddleware");
 
@@ -27,13 +27,7 @@ router.post(
   enrollCourse
 );
 
-// student-> unenroll in course
-// router.post(
-//   "/:id/unenroll",
-//   protect,
-//   authorizeRoles("student"),
-//   unenrollCourse
-// );
+
 
 // teacher + admin-- update course
 router.put(
@@ -74,6 +68,19 @@ router.post(
     });
   }
 );
+
+//add lesson
+router.post(
+  "/:id/lessons",
+  protect,
+  authorizeRoles("teacher", "admin"),
+  upload.fields([
+    {name:"video",maxcount:1},
+    {name:"pdf",maxcount:1}
+  ]),
+  addLesson
+);
+
 router.get("/:id", protect, getCourseById);
 module.exports = router;
 

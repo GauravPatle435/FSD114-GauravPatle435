@@ -44,7 +44,7 @@ function CourseDetails() {
           {lesson.pdfUrl && (
             <div>
               <a href={lesson.pdfUrl} target="_blank" rel="noreferrer">
-                📄 Download Notes
+                📄 View Notes
               </a>
             </div>
           )}

@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
+import {jwtDecode} from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 
 function TeacherCourses() {
   const [courses, setCourses] = useState([]);
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
+  const user = jwtDecode(token);
 
   useEffect(() => {
     if (!token) return;
@@ -37,6 +39,10 @@ function TeacherCourses() {
           <button onClick={() => navigate(`/teacher/courses/edit/${course._id}`)}>
             ✏️ Edit
           </button>
+
+          {(user.role === "teacher" )&& (<button onClick={() => navigate(`/teacher/courses/add-lesson/${course._id}`)}>
+          ▶ Add Lesson
+         </button>)}
         </div>
       ))}
     </div>
