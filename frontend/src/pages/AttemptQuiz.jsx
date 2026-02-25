@@ -19,7 +19,7 @@ function AttemptQuiz() {
     const fetchQuiz = async () => {
 
       const res = await fetch(
-        `https://fsd114-eduvillage-backend.onrender.com/api/quiz/${id}`,
+        `/api/quiz/${id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -54,7 +54,7 @@ function AttemptQuiz() {
   const submitQuiz = async () => {
 
     const res = await fetch(
-      `https://fsd114-eduvillage-backend.onrender.com/api/quiz/submit/${quiz._id}`,
+      `/api/quiz/submit/${quiz._id}`,
       {
         method: "POST",
         headers: {

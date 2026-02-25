@@ -72,7 +72,7 @@ function CreateQuiz() {
       setLoading(true);
 
       const res = await fetch(
-        `https://fsd114-eduvillage-backend.onrender.com/api/quiz/${id}`,
+        `/api/quiz/${id}`,
         {
           method: "POST",
           headers: {

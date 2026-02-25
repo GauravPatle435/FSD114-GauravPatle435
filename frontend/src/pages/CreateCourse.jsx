@@ -29,7 +29,7 @@ function CreateCourse() {
     const formData = new FormData();
     formData.append("file", file);
 
-    const res = await fetch("https://fsd114-eduvillage-backend.onrender.com/api/courses/upload", {
+    const res = await fetch("/api/courses/upload", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -61,7 +61,7 @@ function CreateCourse() {
       pdfUrl,
     };
 
-    const res = await fetch("https://fsd114-eduvillage-backend.onrender.com/api/courses", {
+    const res = await fetch("/api/courses", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
